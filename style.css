@@ -1,0 +1,11 @@
+input[type="color"] {
+    height: 2.5rem;
+    width: 2.5rem;
+    padding: 0;
+    
+    
+    
+  }
+  button{
+    box-shadow: 3px 3px 0 0 #000;
+  }
