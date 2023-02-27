@@ -42,7 +42,8 @@ class Equipe {
   }
 }
 
-function validateForm(nom, bio, specialite, couleur) {
+function validateForm(nom, bio, specialite, couleur, equipe) {
+  $(".invalid-feedback").remove();
   if (!nom) {
     $('#nom').addClass('is-invalid').after('<div class="invalid-feedback">Veuillez entrer un nom</div>');
   }
@@ -50,9 +51,16 @@ function validateForm(nom, bio, specialite, couleur) {
   if (!regex.test(bio)) {
     $('#bio').addClass('is-invalid').after('<div class="invalid-feedback">Votre bio doit commencer par une majuscule et contenir un "!"</div>');
   }
+  if (equipe.verifSpecialite(specialite)) {
+    $("#specialty").addClass('is-invalid')
+    $("#specialty_color").after('<div class="invalid-feedback">Un seul journaliste par spécialité sera embauché</div>')
+  }
+
 }
 
-
+function afficherEquipe(){
+  
+}
 
 
 
@@ -73,7 +81,12 @@ $(function () {
     const bio = $('#bio').val();
     const specialite = $('#specialty').val();
     const couleur = $('#color').val();
-    validateForm(nom, bio, specialite, couleur);
+    if (validateForm(nom, bio, specialite, couleur, equipe)) {
+      const journaliste = new Journaliste(nom, prenom, specialite, couleur)
+      equipe.ajouterJournaliste()
+      
+    };
+    
 
 
 
