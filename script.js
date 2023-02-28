@@ -3,14 +3,19 @@ class Journaliste {
   constructor(nom, prenom, specialite, couleur) {
     // Set the values of "nom", "prenom", "specialite", and "couleur" to the values passed in
     this.nom = nom;
-    this.prenom = prenom;
+    this.bio = prenom;
     this.specialite = specialite;
     this.couleur = couleur;
   }
 
   // Define a "toString" method that returns a formatted string of the Journaliste's properties
   toString() {
-    return `Nom: ${this.nom}, Prénom: ${this.prenom}, Spécialité: ${this.specialite}, Couleur: ${this.couleur}`;
+    return `
+      <div class="journaliste d-flex justify-content-between border border-1 p-2 rounded border-secondary-subtle">
+        <div>${this.nom}</div>
+        <span class="badge rounded-pill" style="background-color: ${this.couleur};">${this.specialite}</span>
+      </div>
+    `;
   }
 }
 
@@ -42,35 +47,68 @@ class Equipe {
   }
 }
 
-function validateForm(nom, bio, specialite, couleur, equipe) {
+function validateForm(journaliste, equipe) {
   $(".invalid-feedback").remove();
-  if (!nom) {
+  if (!journaliste.nom) {
     $('#nom').addClass('is-invalid').after('<div class="invalid-feedback">Veuillez entrer un nom</div>');
+
+  } else {
+    $('#nom').removeClass('is-invalid').addClass('is-valid');
   }
   const regex = /^[A-Z].*!$/;
-  if (!regex.test(bio)) {
+  if (!regex.test(journaliste.bio)) {
     $('#bio').addClass('is-invalid').after('<div class="invalid-feedback">Votre bio doit commencer par une majuscule et contenir un "!"</div>');
+  } else {
+    $('#bio').removeClass('is-invalid').addClass('is-valid');
   }
-  if (equipe.verifSpecialite(specialite)) {
-    $("#specialty").addClass('is-invalid')
-    $("#specialty_color").after('<div class="invalid-feedback">Un seul journaliste par spécialité sera embauché</div>')
+  if (equipe.verifSpecialite(journaliste.specialite)) {
+    $("#specialty").addClass('is-invalid').after('<div class="invalid-feedback">Un seul journaliste par spécialité sera embauché</div>');    
+  } else {
+    $('#specialty').removeClass('is-invalid').addClass('is-valid');
+  }
+  if (equipe.verifCouleur(journaliste.couleur)) {
+    $("#color").addClass('is-invalid').after('<div class="invalid-feedback">Vous devez choisir une couleur différente des membres de l`équipe</div>');
+    
+  } else {
+    $('#color').removeClass('is-invalid').addClass('is-valid');
+  }
+  if ($('.is-invalid').length > 0) {
+    return false;
+  } else {
+    return true;
   }
 
 }
 
-function afficherEquipe(){
-  
+function afficherEquipe(equipe) {
+  $('#equipe').html(equipe.toString());
 }
 
 
+// Save the equipe object in the session storage
+function sauvegarderEquipe(equipe) {
+  sessionStorage.setItem('equipe', JSON.stringify(equipe));
+}
+
+// Load the equipe object from the session storage
+function chargerEquipe() {
+  const equipeJSON = sessionStorage.getItem('equipe');
+  if (equipeJSON !== null) {
+    const equipeObj = JSON.parse(equipeJSON);
+    const equipe = new Equipe();
+    equipe.journalistes = equipeObj.journalistes.map(journaliste => new Journaliste(journaliste.nom, journaliste.bio, journaliste.specialite, journaliste.couleur));
+    return equipe;
+  }
+  return null;
+}
 
 
 
 
 $(function () {
-  // Create a new "equipe" object
-  const equipe = new Equipe();
-
+  // Load the equipe object from the session storage
+  const equipe = chargerEquipe() || new Equipe();
+  const form = 
   // Add a "click" event handler to the "Ajouter" button
   $('#form').on('submit', function (e) {
     // Prevent the default form submission behavior
@@ -81,16 +119,20 @@ $(function () {
     const bio = $('#bio').val();
     const specialite = $('#specialty').val();
     const couleur = $('#color').val();
-    if (validateForm(nom, bio, specialite, couleur, equipe)) {
-      const journaliste = new Journaliste(nom, prenom, specialite, couleur)
-      equipe.ajouterJournaliste()
-      
+    const journaliste = new Journaliste(nom, bio, specialite, couleur)
+    if (validateForm(journaliste, equipe)) {
+      equipe.ajouterJournaliste(journaliste);
+      // Save the equipe object in the session storage
+      sauvegarderEquipe(equipe);
+      $('.is-valid').removeClass('is-valid');
+
+    $('#form').trigger('reset');
     };
+    afficherEquipe(equipe);
     
-
-
-
+    
   });
 
-
+  // Display the equipe object on page load
+  afficherEquipe(equipe);
 });
