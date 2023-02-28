@@ -1,37 +1,4 @@
 // Define a class named "Journaliste"
-
-$(function () {
-  // Load the equipe object from the session storage
-  const equipe = chargerEquipe() || new Equipe();
-  const form = 
-  // Add a "click" event handler to the "Ajouter" button
-  $('#form').on('submit', function (e) {
-    // Prevent the default form submission behavior
-    e.preventDefault();
-
-    // Get the values of the "nom", "bio", "specialite", and "couleur" fields
-    const nom = $('#nom').val();
-    const bio = $('#bio').val();
-    const specialite = $('#specialty').val();
-    const couleur = $('#color').val();
-    const journaliste = new Journaliste(nom, bio, specialite, couleur)
-    if (validateForm(journaliste, equipe)) {
-      equipe.ajouterJournaliste(journaliste);
-      // Save the equipe object in the session storage
-      sauvegarderEquipe(equipe);
-      $('.is-valid').removeClass('is-valid');
-
-    $('#form').trigger('reset');
-    };
-    afficherEquipe(equipe);
-    
-    
-  });
-
-  // Display the equipe object on page load
-  afficherEquipe(equipe);
-});
-
 class Journaliste {
   constructor(nom, prenom, specialite, couleur) {
     // Set the values of "nom", "prenom", "specialite", and "couleur" to the values passed in
@@ -135,6 +102,34 @@ function chargerEquipe() {
   return null;
 }
 
+$(function () {
+  // Load the equipe object from the session storage
+  const equipe = chargerEquipe() || new Equipe();
+  const form = 
+  // Add a "click" event handler to the "Ajouter" button
+  $('#form').on('submit', function (e) {
+    // Prevent the default form submission behavior
+    e.preventDefault();
 
+    // Get the values of the "nom", "bio", "specialite", and "couleur" fields
+    const nom = $('#nom').val();
+    const bio = $('#bio').val();
+    const specialite = $('#specialty').val();
+    const couleur = $('#color').val();
+    const journaliste = new Journaliste(nom, bio, specialite, couleur)
+    if (validateForm(journaliste, equipe)) {
+      equipe.ajouterJournaliste(journaliste);
+      // Save the equipe object in the session storage
+      sauvegarderEquipe(equipe);
+      $('.is-valid').removeClass('is-valid');
+      this.submit();
+    
+    };
+    afficherEquipe(equipe);
+    
+    
+  });
 
-
+  // Display the equipe object on page load
+  afficherEquipe(equipe);
+});
